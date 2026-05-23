@@ -1,118 +1,100 @@
-export interface IProjectData {
-    NAME: string;
-    LIVE_PREVIEW?: string;
-    GITHUB?: string;
-    DESCRIPTION: string[];
-    NOTE?: string;
-    TECH_STACK: string[];
-    IMAGE?: string;
+export interface Project {
+  title: string;
+  description: string;
+  tags: string[];
+  link?: string;
+  github?: string;
 }
 
-export interface IBlogData {
-    DATE: string;
-    TIME: string;
-    LINK: string;
-    DESCRIPTION: string;
-    IMAGE?: string;
+export interface ExperienceItem {
+  company: string;
+  role: string;
+  duration: string;
+  description: string;
+  skills: string[];
 }
 
-export interface IExperienceData {
-    COMPANY: string;
-    ROLE: string;
-    DURATION: string;
-    DESCRIPTION: string[];
-    SKILLS?: string[];
+export interface SkillCategory {
+  category: string;
+  items: string[];
 }
 
-export const DATA = {
-    HEADER: {
-        NAME: "Your Name",
-        AGE: "25",
-        PRONOUN: "he/him",
-        HEADLINE: "Full-Stack Developer passionate about building amazing web experiences",
-        RESUME: "https://drive.google.com/file/d/your-resume-link/view",
-        EMAIL: "your.email@example.com",
-        GITHUB: "https://github.com/yourusername",
-        LINKEDIN: "https://linkedin.com/in/yourprofile",
-        INTRO: "Hey! I'm a full-stack developer who loves building efficient, scalable, and intuitive applications. I thrive on solving complex problems, optimizing performance, and creating seamless user experiences.",
-        EXPERTISE: "My expertise lies in React, Next.js, TypeScript, and Node.js, and I enjoy working across the stack to bring ideas to life."
+export interface HeaderData {
+  name: string;
+  role: string;
+  description: string;
+  bio: string;
+  socials: {
+    github?: string;
+    linkedin?: string;
+    twitter?: string;
+    email?: string;
+  };
+}
+
+export interface PortfolioData {
+  HEADER: HeaderData;
+  EXPERIENCE: ExperienceItem[];
+  SKILLS: SkillCategory[];
+  PROJECTS: Project[];
+}
+
+export const DATA: PortfolioData = {
+  HEADER: {
+    name: "Nilesh Sharma",
+    role: "Full-Stack Developer",
+    description: "Building modern web experiences with React, Next.js, and Node.js.",
+    bio: "I am a passionate software engineer focused on building clean, responsive, and user-centric web applications. I love working with TypeScript, React, and serverless technologies.",
+    socials: {
+      github: "https://github.com/nileshsharma198",
+      linkedin: "https://linkedin.com",
+      twitter: "https://twitter.com",
+      email: "mailto:nilesh@example.com",
     },
-    EXPERIENCE: [
-        {
-            COMPANY: "Tech Company",
-            ROLE: "Senior Frontend Developer",
-            DURATION: "2022 - Present",
-            DESCRIPTION: [
-                "Led development of enterprise-scale React applications",
-                "Implemented responsive design patterns improving mobile experience by 40%",
-                "Mentored junior developers and conducted code reviews"
-            ],
-            SKILLS: ["React", "TypeScript", "Next.js", "Tailwind CSS"]
-        },
-        {
-            COMPANY: "StartupXYZ",
-            ROLE: "Full-Stack Developer",
-            DURATION: "2020 - 2022",
-            DESCRIPTION: [
-                "Built RESTful APIs and real-time features with Node.js",
-                "Developed and maintained multiple client projects",
-                "Collaborated with design team to implement UI/UX improvements"
-            ],
-            SKILLS: ["Node.js", "Express", "MongoDB", "React"]
-        }
-    ] as IExperienceData[],
-    SKILLS: {
-        "Frontend": [
-            "React", "Next.js", "TypeScript", "Tailwind CSS", 
-            "HTML5", "CSS3", "JavaScript (ES6+)"
-        ],
-        "Backend": [
-            "Node.js", "Express", "MongoDB", "PostgreSQL", 
-            "REST APIs", "GraphQL"
-        ],
-        "Tools & Others": [
-            "Git", "Docker", "AWS", "Vercel", 
-            "Figma", "VS Code"
-        ]
+  },
+  EXPERIENCE: [
+    {
+      company: "Company Name",
+      role: "Software Engineer",
+      duration: "2024 - Present",
+      description: "Developed and maintained highly scalable web applications using Next.js and Tailwind CSS. Collaborated closely with designers and product managers to deliver polished user interfaces.",
+      skills: ["React", "Next.js", "TypeScript", "Tailwind CSS"],
     },
-    PROJECTS: [
-        {
-            NAME: "E-Commerce Platform",
-            DESCRIPTION: [
-                "Full-stack e-commerce solution with real-time inventory management",
-                "Implemented secure payment processing with Stripe",
-                "Built admin dashboard for product and order management"
-            ],
-            TECH_STACK: ["Next.js", "TypeScript", "Stripe", "MongoDB", "Tailwind CSS"],
-            GITHUB: "https://github.com/yourusername/ecommerce",
-            LIVE_PREVIEW: "https://ecommerce-demo.vercel.app"
-        },
-        {
-            NAME: "Task Management App",
-            DESCRIPTION: [
-                "Collaborative task management tool with real-time updates",
-                "Features drag-and-drop interface and team collaboration",
-                "Includes notifications, deadlines, and progress tracking"
-            ],
-            TECH_STACK: ["React", "Node.js", "Socket.io", "PostgreSQL"],
-            GITHUB: "https://github.com/yourusername/taskmanager",
-            LIVE_PREVIEW: "https://taskmanager-demo.vercel.app"
-        }
-    ] as IProjectData[],
-    BLOGS: [
-        {
-            DATE: "2024-03-15",
-            TIME: "5 min read",
-            LINK: "https://yourblog.com/nextjs-best-practices",
-            DESCRIPTION: "10 Next.js Best Practices for Production Applications",
-            IMAGE: "/blog-nextjs.jpg"
-        },
-        {
-            DATE: "2024-02-28",
-            TIME: "8 min read",
-            LINK: "https://yourblog.com/typescript-tips",
-            DESCRIPTION: "Advanced TypeScript Tips for React Developers",
-            IMAGE: "/blog-typescript.jpg"
-        }
-    ] as IBlogData[]
+    {
+      company: "Previous Company",
+      role: "Frontend Developer Intern",
+      duration: "2023 - 2024",
+      description: "Optimized website performance and constructed reusable UI components. Conducted unit testing and cross-browser responsiveness audits.",
+      skills: ["HTML", "CSS", "JavaScript", "React"],
+    },
+  ],
+  SKILLS: [
+    {
+      category: "Frontend",
+      items: ["React", "Next.js", "TypeScript", "Tailwind CSS", "Redux"],
+    },
+    {
+      category: "Backend & Databases",
+      items: ["Node.js", "Express", "PostgreSQL", "MongoDB", "GraphQL"],
+    },
+    {
+      category: "DevOps & Tools",
+      items: ["Git", "GitHub", "Docker", "Vercel", "Linux"],
+    },
+  ],
+  PROJECTS: [
+    {
+      title: "Portfolio Website",
+      description: "A modern developer portfolio built using Next.js, Tailwind CSS, and Framer Motion.",
+      tags: ["Next.js", "Tailwind CSS", "Framer Motion"],
+      github: "https://github.com/nileshsharma198/my-portfolio",
+    },
+    {
+      title: "Task Management App",
+      description: "A collaborative project management tool featuring drag-and-drop boards and real-time updates.",
+      tags: ["React", "Node.js", "Socket.io", "MongoDB"],
+      link: "https://example.com",
+      github: "https://github.com",
+    },
+  ],
 };

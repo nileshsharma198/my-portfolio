@@ -1,25 +1,30 @@
 import { DATA } from "@/app/data";
 import {
-  Contact,
-  Experience,
-  Header,
   Navbar,
-  Projects,
+  Header,
+  Experience,
   Skills,
+  Projects,
+  Contact,
 } from "@/components/sections";
+import { InfiniteGridBg } from "@/components/infinite-grid-bg";
 
 export default function Page() {
   return (
-    <>
+    <InfiniteGridBg>
       <Navbar />
 
-      <main className="flex flex-col items-center gap-12 p-8 w-full">
+      <main className="mx-auto max-w-5xl px-6 flex flex-col items-center gap-16 md:gap-24 w-full pt-20">
         <Header data={DATA.HEADER} />
         <Experience data={DATA.EXPERIENCE} />
         <Skills data={DATA.SKILLS} />
         <Projects data={DATA.PROJECTS} />
         <Contact data={DATA.HEADER} />
       </main>
-    </>
+
+      <footer className="w-full border-t border-slate-200/40 dark:border-slate-800/40 py-8 text-center text-xs text-slate-500">
+        <p>&copy; {new Date().getFullYear()} Nilesh Sharma. All rights reserved.</p>
+      </footer>
+    </InfiniteGridBg>
   );
 }

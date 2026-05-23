@@ -1,49 +1,46 @@
 "use client";
 
-import { Mail, Github, Linkedin } from "lucide-react";
+import { Mail, MessageSquare } from "lucide-react";
+import { type HeaderData } from "@/app/data";
 
-export function Contact({ data }: { data: Record<string, string> }) {
-  const openLink = (url: string) => {
-    window.open(url, "_blank");
-  };
+interface ContactProps {
+  data: HeaderData;
+}
 
+export function Contact({ data }: ContactProps) {
   return (
-    <section id="contact" className="w-full py-12">
-      <h2 className="font-bold text-gray-900 text-2xl mb-8 dark:text-gray-100">
-        Get In Touch
-      </h2>
-      
-      <div className="space-y-6">
-        <p className="text-gray-600 dark:text-gray-400 max-w-2xl">
-          I&apos;m always interested in hearing about new opportunities and exciting projects. 
-          Whether you have a question or just want to say hi, feel free to reach out!
+    <section id="contact" className="w-full max-w-4xl py-16 space-y-12">
+      <div className="text-center space-y-2">
+        <h2 className="text-3xl font-black tracking-tight text-slate-950 dark:text-white sm:text-4xl">
+          Get In Touch
+        </h2>
+        <div className="mx-auto h-1 w-12 rounded bg-slate-900 dark:bg-slate-100"></div>
+      </div>
+
+      <div className="max-w-xl mx-auto p-8 rounded-3xl border border-slate-200/50 dark:border-slate-900 bg-white/50 dark:bg-black/50 backdrop-blur-sm shadow-sm text-center space-y-6 transition-colors duration-300">
+        <p className="text-slate-500 dark:text-slate-400 text-sm sm:text-base leading-relaxed">
+          I'm currently open to new opportunities, freelance work, or just connecting. Shoot me an email or click below to reach out!
         </p>
-        
-        <div className="flex flex-wrap gap-4">
-          <button
-            onClick={() => openLink(`mailto:${data.EMAIL}`)}
-            className="flex items-center gap-2 px-6 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-gray-200"
-          >
-            <Mail size={20} />
-            Send Email
-          </button>
-          
-          <button
-            onClick={() => openLink(data.GITHUB)}
-            className="flex items-center gap-2 px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors dark:border-gray-600 dark:hover:bg-gray-800"
-          >
-            <Github size={20} />
-            GitHub
-          </button>
-          
-          <button
-            onClick={() => openLink(data.LINKEDIN)}
-            className="flex items-center gap-2 px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors dark:border-gray-600 dark:hover:bg-gray-800"
-          >
-            <Linkedin size={20} />
-            LinkedIn
-          </button>
-        </div>
+
+        {data.socials.email && (
+          <div className="flex flex-col sm:flex-row gap-4 justify-center pt-2">
+            <a
+              href={data.socials.email}
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-950 px-5 py-3 text-sm font-bold text-white hover:bg-slate-800 dark:bg-white dark:text-black dark:hover:bg-slate-200 transition-colors shadow-md"
+            >
+              <Mail size={16} /> Send Email
+            </a>
+            
+            <a
+              href={data.socials.linkedin || "#"}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-black px-5 py-3 text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors shadow-sm"
+            >
+              <MessageSquare size={16} /> Say Hello on LinkedIn
+            </a>
+          </div>
+        )}
       </div>
     </section>
   );
