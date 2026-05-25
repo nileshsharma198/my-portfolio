@@ -14,8 +14,10 @@ export default function Page() {
     <InfiniteGridBg>
       <Navbar />
 
+      {/* Hero section spans full viewport width */}
+      <Header data={DATA.HEADER} />
+
       <main className="mx-auto max-w-5xl px-6 flex flex-col items-center gap-16 md:gap-24 w-full pt-20">
-        <Header data={DATA.HEADER} />
         <Experience data={DATA.EXPERIENCE} />
         <Skills data={DATA.SKILLS} />
         <Projects data={DATA.PROJECTS} />
