@@ -54,32 +54,40 @@ export const DATA: PortfolioData = {
   },
   EXPERIENCE: [
     {
-      company: "Company Name",
-      role: "Software Engineer",
-      duration: "2024 - Present",
-      description: "Developed and maintained highly scalable web applications using Next.js and Tailwind CSS. Collaborated closely with designers and product managers to deliver polished user interfaces.",
-      skills: ["React", "Next.js", "TypeScript", "Tailwind CSS"],
+      company: "Airwix Technologies",
+      role: "Full Stack Engineer",
+      duration: "Jan 2026 – Present",
+      description: "Developing scalable HRMS and ERP SaaS applications using React, TypeScript, Node.js, Express.js, and PostgreSQL, mainly working on HRMS modules such as employee management, attendance, payroll, and company configuration while building modular and reusable components across the product, integrating REST APIs, and implementing authentication and role-based access control.",
+      skills: ["React", "Node.js", "Express", "REST API", "PostgreSQL", "Tailwind CSS", "Ant Design", "Sequelize"],
     },
     {
-      company: "Previous Company",
-      role: "Frontend Developer Intern",
-      duration: "2023 - 2024",
-      description: "Optimized website performance and constructed reusable UI components. Conducted unit testing and cross-browser responsiveness audits.",
-      skills: ["HTML", "CSS", "JavaScript", "React"],
+      company: "Indian Space Research Organisation",
+      role: "Research Trainee",
+      duration: "Jan 2024 – Apr 2024",
+      description: "Built an interactive meteorological visualization platform for gridded wind vector datasets by converting NetCDF data into JSON using Python and rendering multi-level time-series wind patterns through an interactive Leaflet-based map interface.",
+      skills: ["Python", "JavaScript", "Leaflet", "NetCDF", "HTML", "CSS"],
     },
   ],
   SKILLS: [
     {
+      category: "Languages",
+      items: ["JavaScript (ES6+)", "C/C++", "Python"],
+    },
+    {
       category: "Frontend",
-      items: ["React", "Next.js", "TypeScript", "Tailwind CSS", "Redux"],
+      items: ["React.js", "Redux Toolkit", "Vite", "Tailwind CSS", "Material UI", "Framer Motion"],
     },
     {
-      category: "Backend & Databases",
-      items: ["Node.js", "Express", "PostgreSQL", "MongoDB", "GraphQL"],
+      category: "Backend",
+      items: ["Node.js", "Express.js", "Prisma ORM"],
     },
     {
-      category: "DevOps & Tools",
-      items: ["Git", "GitHub", "Docker", "Vercel", "Linux"],
+      category: "Database",
+      items: ["PostgreSQL", "MongoDB"],
+    },
+    {
+      category: "Tools & Services",
+      items: ["Git", "GitHub", "Postman", "Clerk Authentication", "Inngest", "Brevo SMTP", "REST APIs"],
     },
   ],
   PROJECTS: [
