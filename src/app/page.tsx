@@ -3,6 +3,7 @@ import {
   Navbar,
   Header,
   Experience,
+  ContributionGraph,
   Skills,
   Projects,
   Contact,
@@ -19,6 +20,7 @@ export default function Page() {
 
       <main className="mx-auto max-w-5xl px-6 flex flex-col items-center gap-16 md:gap-24 w-full pt-20">
         <Experience data={DATA.EXPERIENCE} />
+        <ContributionGraph />
         <Skills data={DATA.SKILLS} />
         <Projects data={DATA.PROJECTS} />
         <Contact data={DATA.HEADER} />
