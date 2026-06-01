@@ -4,6 +4,7 @@ export interface Project {
   tags: string[];
   link?: string;
   github?: string;
+  image?: string;
 }
 
 export interface ExperienceItem {
@@ -92,17 +93,20 @@ export const DATA: PortfolioData = {
   ],
   PROJECTS: [
     {
-      title: "Portfolio Website",
-      description: "A modern developer portfolio built using Next.js, Tailwind CSS, and Framer Motion.",
-      tags: ["Next.js", "Tailwind CSS", "Framer Motion"],
-      github: "https://github.com/nileshsharma198/my-portfolio",
+      title: "ProjectSync",
+      description: "Full-stack project management platform for teams to manage workspaces, projects, tasks, and collaboration with secure authentication and automated workflows.",
+      tags: ["React.js", "javaScript", "Node.js", "Express.js", "PostgreSQL", "Prisma", "Neon", "Redux Toolkit", "Clerk", "Inngest", "Brevo"],
+      link: "https://projectsync-eight.vercel.app/",
+      github: "https://github.com/nileshsharma198/ProjectSync",
+      image: "/projectsync.png",
     },
     {
-      title: "Task Management App",
-      description: "A collaborative project management tool featuring drag-and-drop boards and real-time updates.",
-      tags: ["React", "Node.js", "Socket.io", "MongoDB"],
-      link: "https://example.com",
-      github: "https://github.com",
-    },
+      title: "CoinForge",
+      description: "Real-time cryptocurrency analytics platform featuring live market data, coin comparisons, and crypto news in a modern, responsive dashboard.",
+      tags: ["React.js", "javaScript", "Redux Toolkit", " REST APIs", " Framer Motion", "Tailwind CSS"],
+      link: "https://coinforge-ochre.vercel.app/",
+      github: "https://github.com/nileshsharma198/CoinForge",
+      image: "/coinforge.png",
+    }
   ],
 };

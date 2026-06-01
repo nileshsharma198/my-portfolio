@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+﻿import { NextRequest, NextResponse } from "next/server";
 
 const GITHUB_USERNAME = "nileshsharma198";
 const GITHUB_GRAPHQL_API = "https://api.github.com/graphql";
@@ -20,57 +20,62 @@ function getContributionLevel(count: number): 0 | 1 | 2 | 3 | 4 {
   return 4;
 }
 
+function emptyContributionResponse(year: number) {
+  return NextResponse.json({
+    contributions: [],
+    total: { [year]: 0 },
+    fallback: true,
+  });
+}
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const yearParam = searchParams.get("year");
   const year = yearParam ? parseInt(yearParam, 10) : new Date().getFullYear();
 
-  // Validate year
   const currentYear = new Date().getFullYear();
   const safeYear = Math.min(Math.max(year, currentYear - 10), currentYear);
 
   try {
     const token = process.env.GITHUB_TOKEN;
 
-    // ── No token: use the public github-contributions-api ──────────────────
     if (!token) {
       const url = `https://github-contributions-api.jogruber.de/v4/${GITHUB_USERNAME}?y=${safeYear}`;
 
-      const response = await fetch(url, {
-        next: { revalidate: 3600 },
-        headers: { Accept: "application/json" },
-      });
+      try {
+        const response = await fetch(url, {
+          next: { revalidate: 3600 },
+          headers: { Accept: "application/json" },
+        });
 
-      if (!response.ok) {
-        throw new Error(`Public API returned ${response.status}`);
+        if (!response.ok) {
+          console.warn(`Public GitHub contribution API returned ${response.status}`);
+          return emptyContributionResponse(safeYear);
+        }
+
+        const data = await response.json();
+        const contributions: { date: string; count: number }[] =
+          Array.isArray(data.contributions)
+            ? data.contributions.map((c: { date: string; count: number }) => ({
+                date: c.date,
+                count: c.count,
+              }))
+            : [];
+
+        return NextResponse.json({
+          contributions,
+          total: {
+            [safeYear]: contributions.reduce((sum, contribution) => sum + contribution.count, 0),
+          },
+        });
+      } catch (error) {
+        console.warn("Public GitHub contribution API failed, returning empty dataset.", error);
+        return emptyContributionResponse(safeYear);
       }
-
-      const data = await response.json();
-
-      // Public API returns { total: {year: n}, contributions: [{date, count, level}] }
-      // Transform to our simple format: [{date, count}]
-      const contributions: { date: string; count: number }[] =
-        Array.isArray(data.contributions)
-          ? data.contributions.map((c: { date: string; count: number }) => ({
-              date: c.date,
-              count: c.count,
-            }))
-          : [];
-
-      return NextResponse.json({
-        contributions,
-        total: {
-          [safeYear]: contributions.reduce((s, c) => s + c.count, 0),
-        },
-      });
     }
 
-    // ── With GitHub token: use GraphQL API ──────────────────────────────────
     const from = `${safeYear}-01-01T00:00:00Z`;
-    const to =
-      safeYear === currentYear
-        ? new Date().toISOString()
-        : `${safeYear}-12-31T23:59:59Z`;
+    const to = safeYear === currentYear ? new Date().toISOString() : `${safeYear}-12-31T23:59:59Z`;
 
     const query = `
       query($username: String!, $from: DateTime!, $to: DateTime!) {
@@ -100,13 +105,16 @@ export async function GET(request: NextRequest) {
       next: { revalidate: 3600 },
     });
 
-    if (!response.ok) throw new Error("GitHub GraphQL API request failed");
+    if (!response.ok) {
+      throw new Error(`GitHub GraphQL API request failed with ${response.status}`);
+    }
 
     const json = await response.json();
-    const calendar =
-      json.data?.user?.contributionsCollection?.contributionCalendar;
+    const calendar = json.data?.user?.contributionsCollection?.contributionCalendar;
 
-    if (!calendar) throw new Error("No contribution data found");
+    if (!calendar) {
+      throw new Error("No contribution data found");
+    }
 
     const contributions: { date: string; count: number; level: 0 | 1 | 2 | 3 | 4 }[] = [];
 
@@ -126,9 +134,6 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error("Error fetching GitHub contributions:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch contributions" },
-      { status: 500 }
-    );
+    return emptyContributionResponse(safeYear);
   }
 }

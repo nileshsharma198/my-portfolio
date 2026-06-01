@@ -1,93 +1,115 @@
-"use client";
+﻿"use client";
 
-import React, { useRef, useState, useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Sun, Moon } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import { MenuToggleIcon } from "@/components/ui/menu-toggle-icon";
-import { useScroll } from "@/components/ui/use-scroll";
 import { cn } from "@/lib/utils";
+
+const LINKS = [
+  { label: "About", href: "#about", id: "about" },
+  { label: "Experience", href: "#experience", id: "experience" },
+  { label: "Skills", href: "#skills", id: "skills" },
+  { label: "Projects", href: "#projects", id: "projects" },
+  { label: "Contact", href: "#contact", id: "contact" },
+];
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
-  const scrolled = useScroll(10);
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [activeSection, setActiveSection] = useState("about");
-
-  const [position, setPosition] = useState({
-    left: 0,
-    width: 0,
-    opacity: 0,
-  });
-
-  // Tracks the active section's capsule position so we can reset to it on mouse leave
+  const [position, setPosition] = useState({ left: 0, width: 0, opacity: 0 });
   const [activePosition, setActivePosition] = useState({ left: 0, width: 0, opacity: 0 });
-
-  // Theme ripple effect state
   const [ripple, setRipple] = useState<{ x: number; y: number; active: boolean }>({
-    x: 0, y: 0, active: false,
+    x: 0,
+    y: 0,
+    active: false,
   });
   const [nextTheme, setNextTheme] = useState<string>("dark");
+
+  const themeTimeoutRef = useRef<number | null>(null);
+  const rippleTimeoutRef = useRef<number | null>(null);
 
   const handleThemeToggle = (e: React.MouseEvent<HTMLButtonElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = rect.left + rect.width / 2;
     const y = rect.top + rect.height / 2;
     const next = theme === "dark" ? "light" : "dark";
+
+    if (themeTimeoutRef.current !== null) {
+      window.clearTimeout(themeTimeoutRef.current);
+    }
+
+    if (rippleTimeoutRef.current !== null) {
+      window.clearTimeout(rippleTimeoutRef.current);
+    }
+
     setNextTheme(next);
     setRipple({ x, y, active: true });
-    // Switch theme slightly after ripple starts so new colors flood in
-    setTimeout(() => setTheme(next), 180);
-    // Remove overlay after animation finishes
-    setTimeout(() => setRipple((r) => ({ ...r, active: false })), 700);
+    themeTimeoutRef.current = window.setTimeout(() => setTheme(next), 180);
+    rippleTimeoutRef.current = window.setTimeout(() => setRipple((r) => ({ ...r, active: false })), 700);
   };
-
-  const links = [
-    { label: "About", href: "#about", id: "about" },
-    { label: "Experience", href: "#experience", id: "experience" },
-    { label: "Skills", href: "#skills", id: "skills" },
-    { label: "Projects", href: "#projects", id: "projects" },
-    { label: "Contact", href: "#contact", id: "contact" },
-  ];
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Sync scroll position with active link
   useEffect(() => {
-    const handleScrollActive = () => {
-      const scrollPos = window.scrollY + 100;
-      for (let i = 0; i < links.length; i++) {
-        const link = links[i];
-        const el = document.querySelector(link.href);
-        if (el) {
-          const top = (el as HTMLElement).offsetTop;
-          const height = (el as HTMLElement).offsetHeight;
-          if (scrollPos >= top && scrollPos < top + height) {
-            setActiveSection(link.id);
-            break;
-          }
+    const observers = LINKS
+      .map((link) => {
+        const element = document.querySelector(link.href);
+        if (!element) {
+          return null;
         }
-      }
-    };
-    window.addEventListener("scroll", handleScrollActive);
-    return () => window.removeEventListener("scroll", handleScrollActive);
-  }, [links]);
 
-  // Prevent scroll when mobile menu is open
+        const observer = new IntersectionObserver(
+          ([entry]) => {
+            if (entry?.isIntersecting) {
+              setActiveSection(link.id);
+            }
+          },
+          {
+            rootMargin: "-35% 0px -45% 0px",
+            threshold: 0.1,
+          }
+        );
+
+        observer.observe(element);
+        return observer;
+      })
+      .filter(Boolean) as IntersectionObserver[];
+
+    return () => {
+      observers.forEach((observer) => observer.disconnect());
+    };
+  }, []);
+
   useEffect(() => {
     if (open) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
     }
+
     return () => {
       document.body.style.overflow = "";
     };
   }, [open]);
+
+  useEffect(() => {
+    return () => {
+      if (themeTimeoutRef.current !== null) {
+        window.clearTimeout(themeTimeoutRef.current);
+      }
+
+      if (rippleTimeoutRef.current !== null) {
+        window.clearTimeout(rippleTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const scrollToSection = (href: string) => {
     const element = document.querySelector(href);
@@ -99,7 +121,6 @@ export function Navbar() {
 
   return (
     <>
-      {/* Theme ripple overlay */}
       {ripple.active && (
         <motion.div
           className="fixed inset-0 z-[-1] pointer-events-none"
@@ -116,7 +137,6 @@ export function Navbar() {
 
       <header className="fixed top-4 left-0 right-0 z-50 flex justify-center px-4">
         <nav className="flex h-14 w-full max-w-4xl items-center justify-between px-2">
-          {/* Wordmark logo */}
           <div
             className="cursor-pointer text-xl font-bold tracking-tight text-slate-950 dark:text-white"
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
@@ -124,13 +144,12 @@ export function Navbar() {
             nilesh<span className="text-orange-500">.</span>
           </div>
 
-          {/* Sliding Capsule Navigation (Desktop) */}
           <div className="hidden md:flex items-center">
             <ul
-              className="relative flex items-center rounded-full border border-slate-300/85 bg-white/55 p-1 dark:border-slate-800/80 dark:bg-black/45 backdrop-blur-sm shadow-[0_2px_8px_rgba(0,0,0,0.04)]"
+              className="relative flex items-center rounded-full border border-slate-300/85 bg-white/55 p-1 backdrop-blur-sm shadow-[0_2px_8px_rgba(0,0,0,0.04)] dark:border-slate-800/80 dark:bg-black/45"
               onMouseLeave={() => setPosition(activePosition)}
             >
-              {links.map((link) => (
+              {LINKS.map((link) => (
                 <Tab
                   key={link.id}
                   setPosition={setPosition}
@@ -145,7 +164,6 @@ export function Navbar() {
             </ul>
           </div>
 
-          {/* Action controls */}
           <div className="hidden items-center gap-4 md:flex">
             {mounted && (
               <Button
@@ -167,7 +185,6 @@ export function Navbar() {
             </Button>
           </div>
 
-          {/* Mobile controls */}
           <div className="flex items-center gap-2 md:hidden">
             {mounted && (
               <Button
@@ -191,20 +208,19 @@ export function Navbar() {
           </div>
         </nav>
 
-        {/* Mobile Menu Dropdown — full screen overlay */}
         <div
           className={cn(
-            "bg-white/95 dark:bg-black/95 fixed top-0 right-0 bottom-0 left-0 z-40 flex flex-col overflow-hidden border-t border-slate-100 dark:border-slate-900 md:hidden transition-all duration-300 pt-20",
-            open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+            "fixed top-0 right-0 bottom-0 left-0 z-40 flex flex-col overflow-hidden border-t border-slate-100 bg-white/95 pt-20 transition-all duration-300 dark:border-slate-900 dark:bg-black/95 md:hidden",
+            open ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
           )}
         >
           <div className="flex h-full w-full flex-col justify-between gap-y-2 p-6">
             <div className="grid gap-y-2 pt-4">
-              {links.map((link) => (
+              {LINKS.map((link) => (
                 <button
                   key={link.id}
                   className={cn(
-                    "flex items-center justify-start py-3 px-4 rounded-xl text-lg font-medium text-left transition-colors",
+                    "flex items-center justify-start rounded-xl px-4 py-3 text-left text-lg font-medium transition-colors",
                     activeSection === link.id
                       ? "bg-slate-100 text-black dark:bg-slate-900 dark:text-white"
                       : "text-slate-500 hover:bg-slate-50 hover:text-black dark:text-slate-400 dark:hover:bg-slate-950 dark:hover:text-white"
@@ -230,7 +246,6 @@ export function Navbar() {
   );
 }
 
-// --- Tab component ---
 const Tab = ({
   children,
   setPosition,
@@ -239,14 +254,13 @@ const Tab = ({
   onClick,
 }: {
   children: React.ReactNode;
-  setPosition: any;
-  setActivePosition: any;
+  setPosition: React.Dispatch<React.SetStateAction<{ left: number; width: number; opacity: number }>>;
+  setActivePosition: React.Dispatch<React.SetStateAction<{ left: number; width: number; opacity: number }>>;
   isActive: boolean;
   onClick: () => void;
 }) => {
   const ref = useRef<HTMLLIElement>(null);
 
-  // Whenever this tab becomes active, record its position as the "home" position
   useEffect(() => {
     if (isActive && ref.current) {
       const { width } = ref.current.getBoundingClientRect();
@@ -254,7 +268,7 @@ const Tab = ({
       setActivePosition(pos);
       setPosition(pos);
     }
-  }, [isActive]);
+  }, [isActive, setActivePosition, setPosition]);
 
   return (
     <li
@@ -279,12 +293,11 @@ const Tab = ({
   );
 };
 
-// --- Cursor component ---
-const Cursor = ({ position }: { position: any }) => {
+const Cursor = ({ position }: { position: { left: number; width: number; opacity: number } }) => {
   return (
     <motion.li
       animate={position}
-      className="absolute z-0 h-8 rounded-full md:h-8 bg-white/80 dark:bg-white/15 border border-slate-300/80 dark:border-white/25 backdrop-blur-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.4),0_1px_8px_rgba(0,0,0,0.06)] dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_1px_8px_rgba(0,0,0,0.2)]"
+      className="absolute z-0 h-8 rounded-full bg-white/80 border border-slate-300/80 backdrop-blur-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.4),0_1px_8px_rgba(0,0,0,0.06)] dark:bg-white/15 dark:border-white/25 dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_1px_8px_rgba(0,0,0,0.2)] md:h-8"
       transition={{ type: "spring", stiffness: 350, damping: 25 }}
     />
   );

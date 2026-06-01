@@ -1,16 +1,13 @@
-"use client";
+﻿"use client";
 
-import { useState, useRef, useCallback, memo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useCallback, useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   useGithubContributions,
   type HeatmapDay,
 } from "@/hooks/use-github-contributions";
 
-// ─── Constants ────────────────────────────────────────────────────────────────
-
 const CELL = 13;
-const GAP = 3;
 const YEARS = [2026, 2025, 2024];
 
 const LEVEL_COLORS: Record<0 | 1 | 2 | 3 | 4, string> = {
@@ -20,8 +17,6 @@ const LEVEL_COLORS: Record<0 | 1 | 2 | 3 | 4, string> = {
   3: "#26A641",
   4: "#39D353",
 };
-
-// ─── Framer Motion variants ───────────────────────────────────────────────────
 
 const sectionVariants = {
   hidden: { opacity: 0, y: 40 },
@@ -46,24 +41,6 @@ const heatmapVariants = {
   },
 };
 
-const tooltipVariants = {
-  hidden: { opacity: 0, y: 6, scale: 0.9 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: { duration: 0.12, ease: "easeOut" },
-  },
-  exit: {
-    opacity: 0,
-    y: 6,
-    scale: 0.9,
-    transition: { duration: 0.1 },
-  },
-};
-
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-
 function formatDate(d: Date): string {
   return d.toLocaleDateString("en-US", {
     month: "long",
@@ -77,18 +54,14 @@ function formatCount(count: number): string {
   return `${count} contribution${count !== 1 ? "s" : ""}`;
 }
 
-// ─── Skeleton ─────────────────────────────────────────────────────────────────
-
 function HeatmapSkeleton() {
   return (
     <div className="w-full animate-pulse">
-      {/* Month labels row */}
-      <div className="flex gap-6 mb-2 ml-8 h-4">
+      <div className="ml-8 mb-2 flex h-4 gap-6">
         {Array.from({ length: 12 }).map((_, i) => (
           <div key={i} className="h-3 w-7 rounded bg-slate-700/50" />
         ))}
       </div>
-      {/* Grid */}
       <div className="flex gap-[3px]">
         <div style={{ width: 28 }} />
         {Array.from({ length: 53 }).map((_, wi) => (
@@ -111,101 +84,53 @@ function HeatmapSkeleton() {
   );
 }
 
-// ─── Year Button ──────────────────────────────────────────────────────────────
-
-interface YearButtonProps {
-  year: number;
-  active: boolean;
-  disabled: boolean;
-  onClick: () => void;
-}
-
-const YearButton = memo(function YearButton({
-  year,
-  active,
-  disabled,
-  onClick,
-}: YearButtonProps) {
-  return (
-    <motion.button
-      onClick={onClick}
-      disabled={disabled}
-      aria-label={`View contributions for ${year}`}
-      aria-pressed={active}
-      whileHover={{ scale: disabled ? 1 : 1.06 }}
-      whileTap={{ scale: disabled ? 1 : 0.94 }}
-      transition={{ type: "spring", stiffness: 400, damping: 22 }}
-      className={`
-        px-3 py-1 rounded-md text-xs font-bold whitespace-nowrap
-        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/70
-        transition-colors duration-200
-        disabled:opacity-40 disabled:cursor-not-allowed
-        ${
-          active
-            ? "bg-emerald-500 text-white shadow-md shadow-emerald-500/25"
-            : "bg-slate-800/70 dark:bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-slate-200 border border-slate-700/50"
-        }
-      `}
-    >
-      {year}
-    </motion.button>
-  );
-});
-
-// ─── Main Component ───────────────────────────────────────────────────────────
-
 export function ContributionGraph() {
   const [selectedYear, setSelectedYear] = useState(2026);
-
-  const [tooltip, setTooltip] = useState<{
-    visible: boolean;
-    x: number;
-    y: number;
-    day: HeatmapDay;
-  } | null>(null);
-
   const heatmapContainerRef = useRef<HTMLDivElement>(null);
+  const tooltipRef = useRef<HTMLDivElement>(null);
+  const tooltipDateRef = useRef<HTMLParagraphElement>(null);
+  const tooltipCountRef = useRef<HTMLParagraphElement>(null);
   const { data, loading, error, retry } = useGithubContributions(selectedYear);
 
-  // ── Cell interaction handlers ──────────────────────────────────────────────
+  const hideTooltip = useCallback(() => {
+    if (!tooltipRef.current) {
+      return;
+    }
 
-  const handleCellMouseEnter = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>, day: HeatmapDay) => {
-      const rect = heatmapContainerRef.current?.getBoundingClientRect();
-      if (!rect) return;
-      setTooltip({
-        visible: true,
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-        day,
-      });
-    },
-    []
-  );
-
-  const handleCellMouseMove = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      const rect = heatmapContainerRef.current?.getBoundingClientRect();
-      if (!rect) return;
-      setTooltip((prev) =>
-        prev
-          ? { ...prev, x: e.clientX - rect.left, y: e.clientY - rect.top }
-          : null
-      );
-    },
-    []
-  );
-
-  const handleCellMouseLeave = useCallback(() => {
-    setTooltip((prev) => (prev ? { ...prev, visible: false } : null));
+    tooltipRef.current.style.opacity = "0";
   }, []);
 
-  const handleYearSelect = useCallback((yr: number) => {
-    setSelectedYear(yr);
-    setTooltip(null);
+  const showTooltip = useCallback((x: number, y: number, day: HeatmapDay) => {
+    if (!tooltipRef.current || !tooltipDateRef.current || !tooltipCountRef.current) {
+      return;
+    }
+
+    tooltipDateRef.current.textContent = formatDate(day.dateObj);
+    tooltipCountRef.current.textContent = formatCount(day.count);
+    tooltipRef.current.style.left = `${x}px`;
+    tooltipRef.current.style.top = `${Math.max(y - 62, 8)}px`;
+    tooltipRef.current.style.opacity = "1";
   }, []);
 
-  // ── Render ─────────────────────────────────────────────────────────────────
+  const handleCellEnter = useCallback((target: HTMLDivElement, day: HeatmapDay) => {
+    const rect = heatmapContainerRef.current?.getBoundingClientRect();
+    const cellRect = target.getBoundingClientRect();
+
+    if (!rect) {
+      return;
+    }
+
+    showTooltip(
+      cellRect.left - rect.left + CELL / 2,
+      cellRect.top - rect.top,
+      day
+    );
+  }, [showTooltip]);
+
+  const handleYearSelect = useCallback((year: number) => {
+    setSelectedYear(year);
+    hideTooltip();
+  }, [hideTooltip]);
 
   return (
     <motion.section
@@ -216,28 +141,17 @@ export function ContributionGraph() {
       viewport={{ once: true, amount: 0.1 }}
       variants={sectionVariants}
     >
-      {/* ── Section heading ── */}
-      <div className="text-center space-y-2 mb-10">
+      <div className="mb-10 space-y-2 text-center">
         <h2 className="text-3xl font-black tracking-tight text-slate-950 dark:text-white sm:text-4xl">
           Contribution Graph
         </h2>
         <div className="mx-auto h-1 w-12 rounded bg-slate-900 dark:bg-slate-100" />
       </div>
 
-      {/* ── Main glassmorphism card ── */}
-      <div
-        className="rounded-2xl overflow-hidden
-          border border-white/10 dark:border-slate-700/50
-          bg-gradient-to-br from-white/60 to-white/30 dark:from-[#0d1117] dark:to-[#0d1117]
-          backdrop-blur-2xl
-          shadow-[0_8px_32px_-8px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_64px_-16px_rgba(0,0,0,0.8)]
-          dark:ring-1 dark:ring-white/5
-          p-6 md:p-8"
-      >
-        {/* ── Card header ── */}
-        <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
+      <div className="overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-white/60 to-white/30 p-6 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.12)] backdrop-blur-2xl dark:border-slate-700/50 dark:from-[#0d1117] dark:to-[#0d1117] dark:ring-1 dark:ring-white/5 dark:shadow-[0_8px_64px_-16px_rgba(0,0,0,0.8)] md:p-8">
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-slate-400 dark:text-slate-500 mb-1">
+            <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.15em] text-slate-400 dark:text-slate-500">
               GitHub Activity
             </p>
             <AnimatePresence mode="wait">
@@ -250,30 +164,27 @@ export function ContributionGraph() {
                 className="text-sm font-medium text-slate-600 dark:text-slate-300"
               >
                 {loading
-                  ? "Fetching contributions…"
+                  ? "Fetching contributions..."
                   : `${(data?.stats.total ?? 0).toLocaleString()} contributions in ${selectedYear}`}
               </motion.p>
             </AnimatePresence>
           </div>
-            
-          {/* GitHub profile link & year toggle arrows */}
+
           <div className="flex flex-col items-end">
             <a
               href="https://github.com/nileshsharma198"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-emerald-400
-                transition-colors duration-200 group self-end"
+              className="group flex items-center gap-1.5 self-end text-xs text-slate-400 transition-colors duration-200 hover:text-emerald-400"
               aria-label="GitHub profile"
             >
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                 <path d="M12.026 2c-5.509 0-9.974 4.465-9.974 9.974 0 4.406 2.857 8.145 6.821 9.465.499.09.679-.217.679-.481 0-.237-.008-.865-.011-1.696-2.775.602-3.361-1.338-3.361-1.338-.452-1.152-1.107-1.459-1.107-1.459-.905-.619.069-.605.069-.605 1.002.07 1.527 1.028 1.527 1.028.89 1.524 2.336 1.084 2.902.829.091-.645.351-1.085.635-1.334-2.214-.251-4.542-1.107-4.542-4.93 0-1.087.389-1.979 1.024-2.675-.101-.253-.446-1.268.099-2.64 0 0 .837-.269 2.742 1.021a9.582 9.582 0 0 1 2.496-.336 9.554 9.554 0 0 1 2.496.336c1.906-1.291 2.742-1.021 2.742-1.021.545 1.372.203 2.387.099 2.64.64.696 1.024 1.587 1.024 2.675 0 3.833-2.33 4.675-4.552 4.922.355.308.675.916.675 1.846 0 1.334-.012 2.41-.012 2.737 0 .267.178.577.687.479C19.146 20.115 22 16.379 22 11.974 22 6.465 17.535 2 12.026 2z" />
               </svg>
               <span className="group-hover:underline">@nileshsharma198</span>
             </a>
 
-            {/* Year selector with arrows under username */}
-            <div className="flex items-center gap-2 mt-2 justify-end">
+            <div className="mt-2 flex items-center justify-end gap-2">
               <button
                 onClick={() => {
                   const currentIndex = YEARS.indexOf(selectedYear);
@@ -282,16 +193,14 @@ export function ContributionGraph() {
                   }
                 }}
                 disabled={loading || selectedYear === YEARS[YEARS.length - 1]}
-                className="p-1 rounded bg-slate-800/60 text-slate-400 hover:bg-slate-700 hover:text-slate-200 border border-slate-700/50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                className="rounded border border-slate-700/50 bg-slate-800/60 p-1 text-slate-400 transition-colors hover:bg-slate-700 hover:text-slate-200 disabled:cursor-not-allowed disabled:opacity-30"
                 aria-label="Previous Year"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
                 </svg>
               </button>
-              <span className="text-xs font-bold text-slate-300 min-w-[32px] text-center">
-                {selectedYear}
-              </span>
+              <span className="min-w-[32px] text-center text-xs font-bold text-slate-300">{selectedYear}</span>
               <button
                 onClick={() => {
                   const currentIndex = YEARS.indexOf(selectedYear);
@@ -300,10 +209,10 @@ export function ContributionGraph() {
                   }
                 }}
                 disabled={loading || selectedYear === YEARS[0]}
-                className="p-1 rounded bg-slate-800/60 text-slate-400 hover:bg-slate-700 hover:text-slate-200 border border-slate-700/50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                className="rounded border border-slate-700/50 bg-slate-800/60 p-1 text-slate-400 transition-colors hover:bg-slate-700 hover:text-slate-200 disabled:cursor-not-allowed disabled:opacity-30"
                 aria-label="Next Year"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
                 </svg>
               </button>
@@ -311,86 +220,59 @@ export function ContributionGraph() {
           </div>
         </div>
 
-        {/* ── Heatmap row ── */}
         <div className="flex gap-6 items-start">
+          <div className="relative min-w-0 flex-1" ref={heatmapContainerRef}>
+            <div
+              ref={tooltipRef}
+              className="pointer-events-none absolute z-50 -translate-x-1/2 rounded-lg border border-slate-700/60 bg-slate-900 px-3 py-2 text-xs opacity-0 transition-opacity duration-100 dark:bg-slate-800"
+            >
+              <p ref={tooltipDateRef} className="leading-snug text-white font-bold" />
+              <p ref={tooltipCountRef} className="mt-0.5 text-slate-300" />
+              <span
+                aria-hidden="true"
+                className="absolute left-1/2 top-full -translate-x-1/2"
+                style={{
+                  width: 0,
+                  height: 0,
+                  borderLeft: "5px solid transparent",
+                  borderRight: "5px solid transparent",
+                  borderTop: "5px solid #334155",
+                }}
+              />
+            </div>
 
-          {/* ── Heatmap area ── */}
-          <div className="flex-1 min-w-0 relative" ref={heatmapContainerRef}>
-
-            {/* Floating tooltip */}
-            <AnimatePresence>
-              {tooltip?.visible && tooltip.day && (
-                <motion.div
-                  key="tooltip"
-                  variants={tooltipVariants}
-                  initial="hidden"
-                  animate="visible"
-                  exit="exit"
-                  className="pointer-events-none absolute z-50
-                    px-3 py-2 rounded-lg shadow-xl
-                    bg-slate-900 dark:bg-slate-800
-                    border border-slate-700/60
-                    text-xs -translate-x-1/2"
-                  style={{ left: tooltip.x, top: tooltip.y - 62 }}
-                >
-                  <p className="font-bold text-white leading-snug">
-                    {formatDate(tooltip.day.dateObj)}
-                  </p>
-                  <p className="text-slate-300 mt-0.5">
-                    {formatCount(tooltip.day.count)}
-                  </p>
-                  {/* Arrow */}
-                  <span
-                    aria-hidden="true"
-                    className="absolute left-1/2 -translate-x-1/2 top-full"
-                    style={{
-                      width: 0, height: 0,
-                      borderLeft: "5px solid transparent",
-                      borderRight: "5px solid transparent",
-                      borderTop: "5px solid #334155",
-                    }}
-                  />
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* Scrollable heatmap wrapper */}
-            <div className="overflow-x-auto overflow-y-visible pb-2 max-w-full">
-
-              {/* Loading skeleton */}
+            <div className="max-w-full overflow-x-auto overflow-y-visible pb-2">
               {loading && <HeatmapSkeleton />}
 
-              {/* Error state */}
               {!loading && error && (
-                <div className="flex flex-col items-center justify-center py-16 gap-4 text-slate-500 min-w-[300px]">
+                <div className="flex min-w-[300px] flex-col items-center justify-center gap-4 py-16 text-slate-500">
                   <svg
-                    className="w-10 h-10 text-amber-400"
-                    fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor" strokeWidth={1.5}
+                    className="h-10 w-10 text-amber-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={1.5}
                     aria-hidden="true"
                   >
-                    <path strokeLinecap="round" strokeLinejoin="round"
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
                       d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
                     />
                   </svg>
                   <div className="text-center">
-                    <p className="text-sm font-semibold text-slate-300 mb-1">
-                      Failed to load contributions
-                    </p>
+                    <p className="mb-1 text-sm font-semibold text-slate-300">Failed to load contributions</p>
                     <p className="text-xs text-slate-500">{error}</p>
                   </div>
                   <button
                     onClick={retry}
-                    className="px-4 py-1.5 rounded-lg text-sm font-semibold
-                      bg-emerald-500/10 text-emerald-400 border border-emerald-500/20
-                      hover:bg-emerald-500/20 transition-colors"
+                    className="rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-4 py-1.5 text-sm font-semibold text-emerald-400 transition-colors hover:bg-emerald-500/20"
                   >
                     Retry
                   </button>
                 </div>
               )}
 
-              {/* ── The heatmap grid ── */}
               {!loading && !error && data && (
                 <AnimatePresence mode="wait">
                   <motion.div
@@ -401,15 +283,11 @@ export function ContributionGraph() {
                     exit="exit"
                     className="w-full"
                   >
-                    {/* Month labels */}
-                    <div
-                      className="relative h-[18px] mb-1"
-                      aria-hidden="true"
-                    >
+                    <div className="relative mb-1 h-[18px]" aria-hidden="true">
                       {data.monthLabels.map(({ name, weekIndex }) => (
                         <span
                           key={`${name}-${weekIndex}`}
-                          className="absolute text-[11px] font-medium text-slate-400 dark:text-slate-500 -translate-x-1/2"
+                          className="absolute -translate-x-1/2 text-[11px] font-medium text-slate-400 dark:text-slate-500"
                           style={{ left: `${(weekIndex / Math.max(data.weeks.length - 1, 1)) * 100}%` }}
                         >
                           {name}
@@ -417,24 +295,16 @@ export function ContributionGraph() {
                       ))}
                     </div>
 
-                    {/* Grid body: weekly columns */}
                     <div
                       role="grid"
                       aria-label={`GitHub contribution heatmap for ${selectedYear}`}
-                      className="flex justify-between w-full"
+                      className="flex w-full justify-between"
                     >
-                      {/* Weekly columns */}
                       {data.weeks.map((week, wi) => (
                         <div key={wi} role="row" className="flex flex-col gap-[3px]">
-                           {week.days.map((day, di) => {
+                          {week.days.map((day, di) => {
                             if (!day) {
-                              return (
-                                <div
-                                  key={di}
-                                  aria-hidden="true"
-                                  style={{ width: CELL, height: CELL }}
-                                />
-                              );
+                              return <div key={di} aria-hidden="true" style={{ width: CELL, height: CELL }} />;
                             }
 
                             return (
@@ -443,39 +313,18 @@ export function ContributionGraph() {
                                 role="gridcell"
                                 tabIndex={0}
                                 aria-label={`${formatCount(day.count)} on ${formatDate(day.dateObj)}`}
-                                onMouseEnter={(e) => handleCellMouseEnter(e, day)}
-                                onMouseMove={handleCellMouseMove}
-                                onMouseLeave={handleCellMouseLeave}
-                                onFocus={(e) => {
-                                  const rect = heatmapContainerRef.current?.getBoundingClientRect();
-                                  const cellRect = e.currentTarget.getBoundingClientRect();
-                                  if (rect) {
-                                    setTooltip({
-                                      visible: true,
-                                      x: cellRect.left - rect.left + CELL / 2,
-                                      y: cellRect.top - rect.top,
-                                      day,
-                                    });
-                                  }
-                                }}
-                                onBlur={handleCellMouseLeave}
-                                className="
-                                  cursor-default outline-none
-                                  transition-transform duration-100
-                                  hover:scale-125
-                                  focus-visible:scale-125
-                                  focus-visible:outline focus-visible:outline-2
-                                  focus-visible:outline-emerald-400/80
-                                  focus-visible:outline-offset-1
-                                "
+                                title={`${formatCount(day.count)} on ${formatDate(day.dateObj)}`}
+                                onMouseEnter={(e) => handleCellEnter(e.currentTarget, day)}
+                                onMouseLeave={hideTooltip}
+                                onFocus={(e) => handleCellEnter(e.currentTarget, day)}
+                                onBlur={hideTooltip}
+                                className="cursor-default outline-none transition-transform duration-100 hover:scale-125 focus-visible:scale-125 focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-400/80 focus-visible:outline-offset-1"
                                 style={{
                                   width: CELL,
                                   height: CELL,
                                   borderRadius: 2,
                                   backgroundColor: LEVEL_COLORS[day.level],
-                                  border: day.level === 0
-                                    ? "1px solid rgba(255,255,255,0.04)"
-                                    : "none",
+                                  border: day.level === 0 ? "1px solid rgba(255,255,255,0.04)" : "none",
                                 }}
                               />
                             );
@@ -484,18 +333,15 @@ export function ContributionGraph() {
                       ))}
                     </div>
 
-                    {/* ── Legend + total count ── */}
-                    <div className="flex items-center justify-between mt-4 flex-wrap gap-3">
+                    <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
                       <p className="text-[11px] text-slate-400 dark:text-slate-500">
                         {data.stats.total.toLocaleString()} contributions in {selectedYear}
                       </p>
 
                       <div className="flex items-center gap-1.5" aria-label="Contribution level legend">
-                        <span className="text-[10px] text-slate-400 dark:text-slate-500 mr-0.5">
-                          Less
-                        </span>
+                        <span className="mr-0.5 text-[10px] text-slate-400 dark:text-slate-500">Less</span>
                         {([0, 1, 2, 3, 4] as const).map((lvl) => (
-                           <div
+                          <div
                             key={lvl}
                             aria-label={`Level ${lvl}`}
                             style={{
@@ -507,9 +353,7 @@ export function ContributionGraph() {
                             }}
                           />
                         ))}
-                        <span className="text-[10px] text-slate-400 dark:text-slate-500 ml-0.5">
-                          More
-                        </span>
+                        <span className="ml-0.5 text-[10px] text-slate-400 dark:text-slate-500">More</span>
                       </div>
                     </div>
                   </motion.div>
