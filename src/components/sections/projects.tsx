@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Image from "next/image";
 import { Github, ExternalLink } from "lucide-react";
@@ -16,7 +16,7 @@ export function Projects({ data }: ProjectsProps) {
         <h2 className="text-3xl font-black tracking-tight text-slate-950 dark:text-white sm:text-4xl">
           Featured Projects
         </h2>
-        <div className="mx-auto h-1.5 w-16 rounded bg-gradient-to-r from-blue-600 to-cyan-500"></div>
+        <div className="mx-auto h-1 w-12 rounded bg-slate-900 dark:bg-slate-100"></div>
       </div>
 
       <div className="relative pl-8 md:pl-0 space-y-16 md:space-y-28">
@@ -25,7 +25,7 @@ export function Projects({ data }: ProjectsProps) {
           whileInView={{ scaleY: 1 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 1.2, ease: "easeInOut" }}
-          className="absolute left-4 md:left-1/2 top-4 bottom-0 w-[2px] -translate-x-1/2 bg-gradient-to-b from-blue-500 via-slate-200/60 to-transparent dark:via-slate-800/60 origin-top z-0"
+          className="absolute left-4 md:left-1/2 top-4 bottom-0 w-[2px] -translate-x-1/2 bg-gradient-to-b from-slate-300 via-slate-200/50 to-transparent dark:from-slate-700 dark:via-slate-800/50 dark:to-transparent origin-top z-0"
         />
 
         {data.map((proj, idx) => {
@@ -36,7 +36,7 @@ export function Projects({ data }: ProjectsProps) {
               key={idx}
               className="relative grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 items-center"
             >
-              <div className="absolute left-4 md:left-1/2 -translate-x-1/2 top-6 md:top-1/2 -translate-y-1/2 z-10 flex items-center justify-center">
+              <div className="absolute left-0 -translate-x-full md:left-1/2 md:-translate-x-1/2 top-6 md:top-1/2 -translate-y-1/2 z-10 flex items-center justify-center">
                 <motion.div
                   initial={{ scale: 0, opacity: 0 }}
                   whileInView={{ scale: 1, opacity: 1 }}
@@ -44,7 +44,7 @@ export function Projects({ data }: ProjectsProps) {
                   transition={{ type: "spring", stiffness: 100, delay: 0.1 }}
                   className="w-8 h-8 md:w-10 md:h-10 rounded-full border-4 border-white dark:border-slate-950 bg-slate-50 dark:bg-slate-900 shadow-lg flex items-center justify-center group"
                 >
-                  <span className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-gradient-to-tr from-blue-600 to-cyan-500 animate-pulse" />
+                  <span className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-slate-900 dark:bg-slate-100 animate-pulse" />
                 </motion.div>
               </div>
 
@@ -53,7 +53,7 @@ export function Projects({ data }: ProjectsProps) {
                 whileInView={{ opacity: 1, y: 0, x: 0 }}
                 viewport={{ once: true, margin: "-100px" }}
                 transition={{ duration: 0.7, ease: "easeOut" }}
-                className={`group relative overflow-hidden rounded-2xl border border-slate-200/50 dark:border-slate-900 bg-slate-100 dark:bg-slate-950/40 aspect-video shadow-md hover:shadow-xl hover:border-slate-300 dark:hover:border-slate-800 transition-all duration-500 ${
+                className={`group relative overflow-hidden rounded-2xl border border-slate-200/50 dark:border-slate-900 bg-slate-100 dark:bg-slate-950/40 aspect-[1024/485] shadow-md hover:shadow-xl hover:border-slate-300 dark:hover:border-slate-800 transition-all duration-500 ${
                   isEven ? "md:order-1" : "md:order-2"
                 }`}
               >

@@ -17,7 +17,7 @@ export function Contact({ data }: ContactProps) {
         <div className="mx-auto h-1 w-12 rounded bg-slate-900 dark:bg-slate-100"></div>
       </div>
 
-      <div className="max-w-xl mx-auto p-8 rounded-3xl border border-slate-200/50 dark:border-slate-900 bg-white/50 dark:bg-black/50 backdrop-blur-sm shadow-sm text-center space-y-6 transition-colors duration-300">
+      <div className="max-w-xl mx-auto p-6 sm:p-8 rounded-3xl border border-slate-200/50 dark:border-slate-900 bg-white/50 dark:bg-black/50 backdrop-blur-sm shadow-sm text-center space-y-6 transition-colors duration-300">
         <p className="text-slate-500 dark:text-slate-400 text-sm sm:text-base leading-relaxed">
           I'm currently open to new opportunities, freelance work, or just connecting. Shoot me an email or click below to reach out!
         </p>

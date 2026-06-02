@@ -70,7 +70,7 @@ export function InteractiveRobotSpline({ scene, className }: InteractiveRobotSpl
   return (
     <div ref={containerRef} className="h-full w-full">
       <Suspense fallback={<RobotFallback className={className} />}>
-        <div className="relative h-full w-full overflow-hidden pointer-events-auto">
+        <div className="relative h-full w-full overflow-hidden pointer-events-none md:pointer-events-auto">
           <div className="absolute bottom-[-80px] left-0 right-[-80px] top-0">
             {shouldRender && Spline ? (
               <Spline scene={scene} className={className} />

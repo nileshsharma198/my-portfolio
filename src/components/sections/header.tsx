@@ -15,7 +15,7 @@ export function Header({ data }: HeaderProps) {
     <section id="about" className="relative w-full h-screen min-h-[700px] flex flex-col justify-end overflow-hidden pb-12 lg:pb-20 pt-32 px-6 sm:px-12 lg:px-20">
 
       {/* Background 3D Robot (Full Screen to prevent cropping) */}
-      <div className="absolute inset-0 z-0 pointer-events-auto">
+      <div className="absolute inset-0 z-0 pointer-events-none md:pointer-events-auto">
         <InteractiveRobotSpline
           scene="https://prod.spline.design/8xW2L9Lo2Tvnl2lK/scene.splinecode"
           className="w-full h-full"

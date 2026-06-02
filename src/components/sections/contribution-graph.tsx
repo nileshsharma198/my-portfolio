@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useCallback, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -56,7 +56,7 @@ function formatCount(count: number): string {
 
 function HeatmapSkeleton() {
   return (
-    <div className="w-full animate-pulse">
+    <div className="w-full min-w-[845px] animate-pulse">
       <div className="ml-8 mb-2 flex h-4 gap-6">
         {Array.from({ length: 12 }).map((_, i) => (
           <div key={i} className="h-3 w-7 rounded bg-slate-700/50" />
@@ -281,7 +281,7 @@ export function ContributionGraph() {
                     initial="hidden"
                     animate="visible"
                     exit="exit"
-                    className="w-full"
+                    className="w-full min-w-[845px]"
                   >
                     <div className="relative mb-1 h-[18px]" aria-hidden="true">
                       {data.monthLabels.map(({ name, weekIndex }) => (
