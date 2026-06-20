@@ -1,6 +1,20 @@
 "use client";
 
 import { type ExperienceItem } from "@/app/data";
+import { motion } from "framer-motion";
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.15 }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, x: -20 },
+  visible: { opacity: 1, x: 0, transition: { type: "spring", stiffness: 100 } }
+};
 
 interface ExperienceProps {
   data: ExperienceItem[];
@@ -16,9 +30,15 @@ export function Experience({ data }: ExperienceProps) {
         <div className="mx-auto h-1 w-12 rounded bg-slate-900 dark:bg-slate-100"></div>
       </div>
 
-      <div className="relative border-l border-slate-200 dark:border-slate-800 ml-4 md:ml-6 space-y-10">
+      <motion.div 
+        variants={containerVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.1 }}
+        className="relative border-l border-slate-200 dark:border-slate-800 ml-4 md:ml-6 space-y-10"
+      >
         {data.map((job, idx) => (
-          <div key={idx} className="relative pl-8 md:pl-10">
+          <motion.div key={idx} variants={itemVariants} className="relative pl-8 md:pl-10">
             {/* Circle node on timeline */}
             <span className="absolute -left-[9px] top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-white dark:bg-black border-2 border-slate-950 dark:border-slate-100"></span>
 
@@ -51,9 +71,9 @@ export function Experience({ data }: ExperienceProps) {
                 </span>
               ))}
             </div>
-          </div>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
     </section>
   );
 }

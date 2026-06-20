@@ -58,32 +58,29 @@ export function Navbar() {
   }, []);
 
   useEffect(() => {
-    const observers = LINKS
-      .map((link) => {
+    const handleScroll = () => {
+      let currentSection = "about"; // Default to top section
+      
+      for (const link of LINKS) {
         const element = document.querySelector(link.href);
-        if (!element) {
-          return null;
-        }
-
-        const observer = new IntersectionObserver(
-          ([entry]) => {
-            if (entry?.isIntersecting) {
-              setActiveSection(link.id);
-            }
-          },
-          {
-            rootMargin: "-35% 0px -45% 0px",
-            threshold: 0.1,
+        if (element) {
+          const rect = element.getBoundingClientRect();
+          // If the section occupies the top 30% of the screen, it's active
+          if (rect.top <= window.innerHeight * 0.3 && rect.bottom >= window.innerHeight * 0.3) {
+            currentSection = link.id;
           }
-        );
+        }
+      }
 
-        observer.observe(element);
-        return observer;
-      })
-      .filter(Boolean) as IntersectionObserver[];
+      setActiveSection((prev) => (prev !== currentSection ? currentSection : prev));
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    // Trigger once on mount
+    handleScroll();
 
     return () => {
-      observers.forEach((observer) => observer.disconnect());
+      window.removeEventListener("scroll", handleScroll);
     };
   }, []);
 

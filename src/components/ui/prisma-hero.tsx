@@ -98,7 +98,7 @@ interface PrismaHeroProps {
 
 const PrismaHero = ({ title = "Prisma", description = "I am a passionate software engineer focused on building clean, responsive, and user-centric web applications. I love working with TypeScript, React, and serverless technologies.", socials }: PrismaHeroProps) => {
   return (
-    <section className="h-screen w-full">
+    <section id="about" className="h-screen w-full">
       <div className="relative h-full w-full overflow-hidden">
 
         {/* Background video */}

@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { type SkillCategory } from "@/app/data";
 import { Icons } from "@/components/ui/icons";
 
@@ -50,6 +51,37 @@ const getSkillIcon = (skill: string) => {
   return null;
 };
 
+const sectionVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.2 }
+  }
+};
+
+const categoryVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      type: "spring",
+      stiffness: 100,
+      staggerChildren: 0.05,
+      delayChildren: 0.1
+    }
+  }
+};
+
+const skillVariants = {
+  hidden: { opacity: 0, scale: 0.8 },
+  visible: { 
+    opacity: 1, 
+    scale: 1, 
+    transition: { type: "spring", stiffness: 200 } 
+  }
+};
+
 export function Skills({ data }: SkillsProps) {
   return (
     <section id="skills" className="w-full max-w-5xl py-16 space-y-12">
@@ -60,10 +92,17 @@ export function Skills({ data }: SkillsProps) {
         <div className="mx-auto h-1 w-12 rounded bg-slate-900 dark:bg-slate-100"></div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
+      <motion.div 
+        variants={sectionVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.1 }}
+        className="grid gap-6 md:grid-cols-2"
+      >
         {data.map((cat, idx) => (
-          <div
+          <motion.div
             key={idx}
+            variants={categoryVariants}
             className={`p-6 rounded-2xl border border-slate-200/50 dark:border-slate-900/80 bg-white dark:bg-black/50 backdrop-blur-sm shadow-sm space-y-4 transition-colors duration-300 ${
               idx === data.length - 1 ? "md:col-span-2" : ""
             }`}
@@ -74,18 +113,20 @@ export function Skills({ data }: SkillsProps) {
             
             <div className={`grid grid-cols-3 sm:grid-cols-4 gap-3 sm:gap-4 ${idx === data.length - 1 ? "md:grid-cols-6 lg:grid-cols-8" : "md:grid-cols-3 lg:grid-cols-4"}`}>
               {cat.items.map((skill) => (
-                <span
+                <motion.span
                   key={skill}
-                  className="group flex flex-col items-center justify-center w-full aspect-square rounded-xl px-1 sm:px-2 py-2 sm:py-3 text-center text-[10px] sm:text-[11px] leading-tight font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md hover:bg-slate-50 dark:hover:bg-slate-800"
+                  variants={skillVariants}
+                  whileHover={{ scale: 1.05 }}
+                  className="group flex flex-col items-center justify-center w-full aspect-square rounded-xl px-1 sm:px-2 py-2 sm:py-3 text-center text-[10px] sm:text-[11px] leading-tight font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800 shadow-sm transition-all duration-300 hover:shadow-md hover:bg-slate-50 dark:hover:bg-slate-800"
                 >
                   {getSkillIcon(skill)}
                   {skill}
-                </span>
+                </motion.span>
               ))}
             </div>
-          </div>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
     </section>
   );
 }
