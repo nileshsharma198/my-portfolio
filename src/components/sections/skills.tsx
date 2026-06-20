@@ -1,10 +1,54 @@
 "use client";
 
 import { type SkillCategory } from "@/app/data";
+import { Icons } from "@/components/ui/icons";
+
+import { 
+  Braces, FileJson, RefreshCcw, Wand2, FileCode2, Server, Database, 
+  Leaf, GitBranch, Send, ShieldCheck, Zap, Mail, Network, Triangle, Code2,
+  Terminal, Layers, Activity, Code
+} from "lucide-react";
 
 interface SkillsProps {
   data: SkillCategory[];
 }
+
+const getSkillIcon = (skill: string) => {
+  const s = skill.toLowerCase();
+  const classes = "mr-1.5 h-3.5 w-3.5";
+  
+  if (s.includes("react")) return <Icons.react className={classes} />;
+  if (s.includes("tailwind")) return <Icons.tailwind className={classes} />;
+  if (s.includes("github")) return <Icons.gitHub className={classes} />;
+  if (s.includes("node") || s.includes("npm")) return <Icons.npm className={classes} />;
+  
+  if (s.includes("next.js")) return <Triangle className={classes} />;
+  if (s.includes("typescript")) return <Code2 className={classes} />;
+  if (s.includes("javascript")) return <FileJson className={classes} />;
+  if (s.includes("html/css")) return <FileCode2 className={classes} />;
+  if (s.includes("c/c++")) return <Terminal className={classes} />;
+  if (s.includes("python")) return <Code className={classes} />;
+  
+  if (s.includes("redux")) return <RefreshCcw className={classes} />;
+  if (s.includes("framer motion")) return <Wand2 className={classes} />;
+  if (s.includes("vite")) return <Zap className={classes} />;
+  if (s.includes("material ui")) return <Layers className={classes} />;
+  
+  if (s.includes("express.js")) return <Server className={classes} />;
+  if (s.includes("prisma")) return <Database className={classes} />;
+  
+  if (s.includes("postgresql")) return <Database className={classes} />;
+  if (s.includes("mongodb")) return <Leaf className={classes} />;
+  
+  if (s.includes("git") && !s.includes("github")) return <GitBranch className={classes} />;
+  if (s.includes("postman")) return <Send className={classes} />;
+  if (s.includes("clerk")) return <ShieldCheck className={classes} />;
+  if (s.includes("inngest")) return <Activity className={classes} />;
+  if (s.includes("brevo")) return <Mail className={classes} />;
+  if (s.includes("api")) return <Network className={classes} />;
+  
+  return null;
+};
 
 export function Skills({ data }: SkillsProps) {
   return (
@@ -30,8 +74,9 @@ export function Skills({ data }: SkillsProps) {
               {cat.items.map((skill) => (
                 <span
                   key={skill}
-                  className="rounded px-2.5 py-1 text-xs font-semibold text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/60 transition-all hover:scale-105"
+                  className="flex items-center rounded px-2.5 py-1 text-xs font-semibold text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/60 transition-all hover:scale-105"
                 >
+                  {getSkillIcon(skill)}
                   {skill}
                 </span>
               ))}

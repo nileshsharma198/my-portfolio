@@ -45,12 +45,12 @@ export const DATA: PortfolioData = {
     name: "Nilesh Sharma",
     role: "Full-Stack Developer",
     description: "Building modern web experiences with React, Next.js, and Node.js.",
-    bio: "I am a passionate software engineer focused on building clean, responsive, and user-centric web applications. I love working with TypeScript, React, and serverless technologies.",
+    bio: "I am passionate about building scalable, responsive, and user-focused web applications. I enjoy working with React, TypeScript, Node.js, and turning ideas into real products",
     socials: {
       github: "https://github.com/nileshsharma198",
-      linkedin: "https://linkedin.com",
-      twitter: "https://twitter.com",
-      email: "mailto:nilesh@example.com",
+      linkedin: "https://www.linkedin.com/in/nilesh-sharma-a045781b6/",
+      twitter: "https://x.com/bitby_nilesh",
+      email: "mailto:nilesh.sharma2704@gmail.com",
     },
   },
   EXPERIENCE: [
